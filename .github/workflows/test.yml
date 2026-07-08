@@ -6,16 +6,21 @@ on:
   pull_request:
     branches: [main, master]
 
+permissions:
+  contents: read
+  checks: write
+  pull-requests: write
+
 jobs:
   test:
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Setup .NET
-        uses: actions/setup-dotnet@v4
+        uses: actions/setup-dotnet@v5
         with:
           dotnet-version: 8.0.x
           cache: true
@@ -27,7 +32,7 @@ jobs:
       - name: Build
         run: dotnet build SpecFlowWeb.Tests/SpecFlowWeb.Tests.csproj --configuration Release --no-restore
 
-      # Headless 仍会启动 Chromium，Linux 上需要少量系统库（无桌面 UI，依赖比有头模式少）
+      # Headless 仍会启动 Chromium，Linux 上需要少量系统库
       - name: Install headless Chromium libraries
         run: |
           sudo apt-get update
@@ -36,6 +41,30 @@ jobs:
             libxcomposite1 libxdamage1 libxfixes3 libxrandr2 libgbm1 libasound2t64
 
       - name: Run tests
-        run: dotnet test SpecFlowWeb.Tests/SpecFlowWeb.Tests.csproj --configuration Release --no-build --verbosity normal
+        run: >
+          dotnet test SpecFlowWeb.Tests/SpecFlowWeb.Tests.csproj
+          --configuration Release
+          --no-build
+          --verbosity normal
+          --logger "trx;LogFileName=test-results.trx"
+          --results-directory "${{ github.workspace }}/TestResults"
         env:
           DOTNET_CLI_TELEMETRY_OPTOUT: 1
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v6
+        with:
+          name: test-results
+          path: TestResults/
+          if-no-files-found: warn
+          retention-days: 14
+
+      - name: Publish test report
+        if: always()
+        uses: dorny/test-reporter@v3
+        with:
+          name: SpecFlow Web Tests
+          path: TestResults/*.trx
+          reporter: dotnet-trx
+          fail-on-error: false

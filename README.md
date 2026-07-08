@@ -49,3 +49,10 @@ HEADED=true dotnet test
 ## 场景说明
 
 `Login.feature` 覆盖：打开登录页 → 输入有效凭据 → 断言进入商品库页面且标题为 `Products`。
+
+## CI
+
+Push / PR 到 `main` 或 `master` 时，GitHub Actions 会执行无头测试：
+
+- Checks 页可查看 **SpecFlow Web Tests** 报告
+- Artifacts 中可下载 `test-results`（TRX）

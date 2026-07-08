@@ -1,0 +1,41 @@
+name: Tests
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+    branches: [main, master]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.0.x
+          cache: true
+          cache-dependency-path: SpecFlowWeb.Tests/SpecFlowWeb.Tests.csproj
+
+      - name: Restore
+        run: dotnet restore SpecFlowWeb.Tests/SpecFlowWeb.Tests.csproj
+
+      - name: Build
+        run: dotnet build SpecFlowWeb.Tests/SpecFlowWeb.Tests.csproj --configuration Release --no-restore
+
+      # Headless 仍会启动 Chromium，Linux 上需要少量系统库（无桌面 UI，依赖比有头模式少）
+      - name: Install headless Chromium libraries
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            libnss3 libatk-bridge2.0-0 libdrm2 libxkbcommon0 \
+            libxcomposite1 libxdamage1 libxfixes3 libxrandr2 libgbm1 libasound2t64
+
+      - name: Run tests
+        run: dotnet test SpecFlowWeb.Tests/SpecFlowWeb.Tests.csproj --configuration Release --no-build --verbosity normal
+        env:
+          DOTNET_CLI_TELEMETRY_OPTOUT: 1

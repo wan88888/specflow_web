@@ -52,7 +52,12 @@ HEADED=true dotnet test
 
 ## CI
 
-Push / PR 到 `main` 或 `master` 时，GitHub Actions 会执行无头测试：
+Push / PR 到 `main` 或 `master` 时，GitHub Actions 会执行无头测试并生成 **HTML 测试报告**。
 
-- Checks 页可查看 **SpecFlow Web Tests** 报告
-- Artifacts 中可下载 `test-results`（TRX）
+### 怎么看报告
+
+1. 打开 GitHub Actions 中对应的一次运行
+2. 在页面底部 **Artifacts** 区域下载 `test-report-html`
+3. 解压后用浏览器打开 `index.html`
+
+> TRX 是 `dotnet test` 的原生机器可读格式，CI 会先产出 TRX，再自动转换成 HTML 报告。

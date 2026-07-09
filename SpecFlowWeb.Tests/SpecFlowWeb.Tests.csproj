@@ -4,7 +4,6 @@
     <TargetFramework>net10.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
-
     <IsPackable>false</IsPackable>
     <IsTestProject>true</IsTestProject>
 
@@ -14,10 +13,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="coverlet.collector" Version="6.0.0" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.14.1" />
     <PackageReference Include="NUnit" Version="3.14.0" />
-    <PackageReference Include="NUnit.Analyzers" Version="3.9.0" />
     <PackageReference Include="NUnit3TestAdapter" Version="4.5.0" />
     <PackageReference Include="PuppeteerSharp" Version="25.3.1" />
     <PackageReference Include="Reqnroll.NUnit" Version="3.3.4" />
@@ -34,7 +31,6 @@
   </ItemGroup>
 
   <Target Name="CopyReqnrollHtmlReport" AfterTargets="VSTest">
-    <MakeDir Directories="$(TestResultsDir)" />
     <Copy
       SourceFiles="$(ReqnrollReportHtml)"
       DestinationFiles="$(TestReportHtml)"

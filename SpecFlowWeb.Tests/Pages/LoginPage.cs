@@ -25,26 +25,11 @@ public sealed class LoginPage
         await _page.WaitForSelectorAsync(UsernameSelector);
     }
 
-    public async Task EnterUsernameAsync(string username)
-    {
-        await FillInputAsync(UsernameSelector, username);
-    }
-
-    public async Task EnterPasswordAsync(string password)
-    {
-        await FillInputAsync(PasswordSelector, password);
-    }
-
-    public async Task ClickLoginAsync()
-    {
-        await _page.ClickAsync(LoginButtonSelector);
-    }
-
     public async Task LoginAsync(string username, string password)
     {
-        await EnterUsernameAsync(username);
-        await EnterPasswordAsync(password);
-        await ClickLoginAsync();
+        await FillInputAsync(UsernameSelector, username);
+        await FillInputAsync(PasswordSelector, password);
+        await _page.ClickAsync(LoginButtonSelector);
     }
 
     private async Task FillInputAsync(string selector, string value)

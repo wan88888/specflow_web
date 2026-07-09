@@ -37,10 +37,16 @@ TestResults/report.html    # 测试结束后自动生成
 dotnet test
 ```
 
-有头模式（使用本机 Google Chrome）：
+有头模式（使用本机 Google Chrome，测完立即关闭）：
 
 ```bash
 HEADED=true dotnet test
+```
+
+需要观察结果页时，可指定结束后停留时间（毫秒）：
+
+```bash
+HEADED=true HEADED_PAUSE_MS=5000 dotnet test
 ```
 
 测试结束后用浏览器打开 `TestResults/report.html` 查看报告。

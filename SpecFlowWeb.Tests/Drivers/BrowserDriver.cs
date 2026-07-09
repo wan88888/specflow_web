@@ -3,9 +3,6 @@ using PuppeteerSharp.BrowserData;
 
 namespace SpecFlowWeb.Tests.Drivers;
 
-/// <summary>
-/// Manages the PuppeteerSharp browser lifecycle for UI tests.
-/// </summary>
 public sealed class BrowserDriver : IAsyncDisposable
 {
     private static readonly string BrowserCachePath = Path.Combine(
@@ -23,13 +20,27 @@ public sealed class BrowserDriver : IAsyncDisposable
     public IPage Page =>
         _page ?? throw new InvalidOperationException("Browser has not been started. Call StartAsync first.");
 
+    public static bool IsHeadedMode =>
+        string.Equals(Environment.GetEnvironmentVariable("HEADED"), "true", StringComparison.OrdinalIgnoreCase);
+
+    public static bool TryGetHeadedPauseMilliseconds(out int milliseconds)
+    {
+        var value = Environment.GetEnvironmentVariable("HEADED_PAUSE_MS");
+        if (string.IsNullOrWhiteSpace(value))
+        {
+            milliseconds = 0;
+            return false;
+        }
+
+        return int.TryParse(value, out milliseconds);
+    }
+
     public async Task StartAsync(bool headless = true)
     {
-        var launchOptions = headless
-            ? CreateHeadlessLaunchOptions(await EnsureHeadlessBrowserReadyAsync())
-            : CreateHeadedLaunchOptions();
-
-        _browser = await Puppeteer.LaunchAsync(launchOptions);
+        _browser = await Puppeteer.LaunchAsync(
+            headless
+                ? CreateHeadlessLaunchOptions(await EnsureHeadlessBrowserReadyAsync())
+                : CreateHeadedLaunchOptions());
 
         var pages = await _browser.PagesAsync();
         _page = pages.Length > 0 ? pages[0] : await _browser.NewPageAsync();

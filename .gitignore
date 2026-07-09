@@ -19,7 +19,6 @@ bld/
 TestResults/
 *.nupkg
 *.snupkg
-*.snupkg
 project.lock.json
 project.fragment.lock.json
 artifacts/

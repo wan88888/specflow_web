@@ -17,38 +17,33 @@ public sealed class Hooks
     [BeforeTestRun]
     public static async Task BeforeTestRunAsync()
     {
-        var headless = !string.Equals(
-            Environment.GetEnvironmentVariable("HEADED"),
-            "true",
-            StringComparison.OrdinalIgnoreCase);
-
         _browserDriver = new BrowserDriver();
-        await _browserDriver.StartAsync(headless);
-
-        if (!headless)
-        {
-            Console.WriteLine("Running in headed mode with Google Chrome.");
-        }
+        await _browserDriver.StartAsync(headless: !BrowserDriver.IsHeadedMode);
     }
 
     [AfterTestRun]
     public static async Task AfterTestRunAsync()
     {
-        if (_browserDriver is not null)
+        if (_browserDriver is null)
         {
-            await _browserDriver.DisposeAsync();
-            _browserDriver = null;
+            return;
         }
+
+        if (BrowserDriver.IsHeadedMode
+            && BrowserDriver.TryGetHeadedPauseMilliseconds(out var pauseMs)
+            && pauseMs > 0)
+        {
+            Console.WriteLine($"Headed mode: keeping browser open for {pauseMs}ms...");
+            await Task.Delay(pauseMs);
+        }
+
+        await _browserDriver.DisposeAsync();
+        _browserDriver = null;
     }
 
     [BeforeScenario]
     public void BeforeScenario()
     {
-        if (_browserDriver is null)
-        {
-            throw new InvalidOperationException("Browser was not started. Check BeforeTestRun hook.");
-        }
-
-        _scenarioContext.Set(_browserDriver);
+        _scenarioContext.Set(_browserDriver!);
     }
 }

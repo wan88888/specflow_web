@@ -18,7 +18,10 @@ public sealed class LoginPage
 
     public async Task NavigateAsync()
     {
-        await _page.GoToAsync(Url, WaitUntilNavigation.Networkidle2);
+        await _page.GoToAsync(Url, new NavigationOptions
+        {
+            WaitUntil = [WaitUntilNavigation.DOMContentLoaded]
+        });
         await _page.WaitForSelectorAsync(UsernameSelector);
     }
 

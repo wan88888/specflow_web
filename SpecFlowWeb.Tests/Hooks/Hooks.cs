@@ -6,16 +6,16 @@ namespace SpecFlowWeb.Tests.Hooks;
 [Binding]
 public sealed class Hooks
 {
+    private static BrowserDriver? _browserDriver;
     private readonly ScenarioContext _scenarioContext;
-    private BrowserDriver? _browserDriver;
 
     public Hooks(ScenarioContext scenarioContext)
     {
         _scenarioContext = scenarioContext;
     }
 
-    [BeforeScenario]
-    public async Task BeforeScenarioAsync()
+    [BeforeTestRun]
+    public static async Task BeforeTestRunAsync()
     {
         var headless = !string.Equals(
             Environment.GetEnvironmentVariable("HEADED"),
@@ -24,16 +24,31 @@ public sealed class Hooks
 
         _browserDriver = new BrowserDriver();
         await _browserDriver.StartAsync(headless);
-        _scenarioContext.Set(_browserDriver);
+
+        if (!headless)
+        {
+            Console.WriteLine("Running in headed mode with Google Chrome.");
+        }
     }
 
-    [AfterScenario]
-    public async Task AfterScenarioAsync()
+    [AfterTestRun]
+    public static async Task AfterTestRunAsync()
     {
         if (_browserDriver is not null)
         {
             await _browserDriver.DisposeAsync();
             _browserDriver = null;
         }
+    }
+
+    [BeforeScenario]
+    public void BeforeScenario()
+    {
+        if (_browserDriver is null)
+        {
+            throw new InvalidOperationException("Browser was not started. Check BeforeTestRun hook.");
+        }
+
+        _scenarioContext.Set(_browserDriver);
     }
 }

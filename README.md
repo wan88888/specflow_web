@@ -1,31 +1,35 @@
 # specflow_web
 
-C# Web 自动化 Demo：使用 **PuppeteerSharp** + **Reqnroll**（SpecFlow 的开源继任者）实现 [SauceDemo](https://www.saucedemo.com) 登录成功测试。
+C# Web 自动化 Demo：使用 **PuppeteerSharp** + **Reqnroll** 实现 [SauceDemo](https://www.saucedemo.com) 登录成功测试。
 
 ## 技术栈
 
 | 组件 | 用途 |
 |------|------|
-| .NET 8 / NUnit | 测试运行框架 |
-| Reqnroll | BDD（Gherkin Feature / Step Definitions，兼容 SpecFlow） |
-| PuppeteerSharp | 无头 Chrome 浏览器自动化 |
+| .NET 10 / NUnit | 测试运行框架 |
+| Reqnroll | BDD（Gherkin Feature / Step Definitions） |
+| PuppeteerSharp | Chrome 浏览器自动化 |
+| Reqnroll HTML Formatter | 测试报告（零额外依赖） |
 
 ## 项目结构
 
 ```
 SpecFlowWeb.Tests/
-├── Drivers/BrowserDriver.cs          # Puppeteer 浏览器生命周期
-├── Pages/LoginPage.cs                # 登录页 Page Object
-├── Pages/InventoryPage.cs            # 商品页 Page Object
-├── Features/Login.feature            # Gherkin 场景
-├── StepDefinitions/LoginStepDefinitions.cs
-└── Hooks/Hooks.cs                    # 场景前后启动/关闭浏览器
+├── Drivers/BrowserDriver.cs
+├── Pages/
+├── Features/Login.feature
+├── StepDefinitions/
+├── Hooks/Hooks.cs
+└── reqnroll.json
+
+TestResults/report.html    # 测试结束后自动生成
 ```
 
 ## 前置条件
 
-- [.NET 8 SDK](https://dotnet.microsoft.com/download) 或更高版本
-- 首次运行时 PuppeteerSharp 会自动下载 Chromium
+- [.NET 10 SDK](https://dotnet.microsoft.com/download)
+- 有头模式需要本机安装 **Google Chrome**
+- 无头模式首次运行会自动下载 Chromium 到 `~/.cache/specflow_web/chromium`
 
 ## 运行测试
 
@@ -33,11 +37,13 @@ SpecFlowWeb.Tests/
 dotnet test
 ```
 
-有头模式（可见浏览器窗口）：
+有头模式（使用本机 Google Chrome）：
 
 ```bash
 HEADED=true dotnet test
 ```
+
+测试结束后用浏览器打开 `TestResults/report.html` 查看报告。
 
 ## 测试账号
 
@@ -52,12 +58,4 @@ HEADED=true dotnet test
 
 ## CI
 
-Push / PR 到 `main` 或 `master` 时，GitHub Actions 会执行无头测试并生成 **HTML 测试报告**。
-
-### 怎么看报告
-
-1. 打开 GitHub Actions 中对应的一次运行
-2. 在页面底部 **Artifacts** 区域下载 `test-report-html`
-3. 解压后用浏览器打开 `index.html`
-
-> TRX 是 `dotnet test` 的原生机器可读格式，CI 会先产出 TRX，再自动转换成 HTML 报告。
+Push / PR 时 GitHub Actions 会执行无头测试，并在 Artifacts 中上传 `test-report-html`。

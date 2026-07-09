@@ -19,6 +19,7 @@ bld/
 TestResults/
 *.nupkg
 *.snupkg
+*.snupkg
 project.lock.json
 project.fragment.lock.json
 artifacts/
@@ -26,6 +27,7 @@ artifacts/
 ## Puppeteer / Chrome
 .local-chromium/
 Chrome/
+.cache/
 
 ## IDE
 .vs/
